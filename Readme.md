@@ -27,6 +27,7 @@ Ces deux objets sont en relation Posts dépend de Users.
 
 
 #Comment mettre en route l'API
+
 Pour récupérer et faire fonctionner cette API il faut :
  - faire un git clone 
  - ensuite faire npm install pour pouvoir installer tout les composants node
@@ -36,6 +37,8 @@ Pour récupérer et faire fonctionner cette API il faut :
      - un token secret : JWT_SECRET=
  - une fois les trois premières étapes reliées, vous pouvez lancer votre API en tapant : 
     - npm run dev
+
+#Conclusion
     
 Voila pour les explications, si vous avez des problèmes n'hésitez 
 pas à m'envoyer un mail j'y répondrais assez rapidement normalement.
