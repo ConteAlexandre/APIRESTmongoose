@@ -43,9 +43,9 @@ Pour récupérer et faire fonctionner cette API il faut :
     - npm run dev
 ## Outils principaux
 
- * NodeJs : Framework js
- * Mongoose : Package de communication pour la base de donnée
- * Express : Package pour faire des requêtes http
+ * [NodeJs](https://nodejs.org/en/) : Framework js
+ * [Mongoose](https://mongoosejs.com/docs/guide.html) : Package de communication pour la base de donnée
+ * [Express](http://expressjs.com/) : Package pour faire des requêtes http
 
 ## Conclusion
     
