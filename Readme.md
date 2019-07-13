@@ -38,7 +38,6 @@ Pour récupérer et faire fonctionner cette API il faut :
      - l'URI de votre Base de Donnée : MONGO_URI=
      - votre port sur le quel vous souhaitez faire écouter l'API : PORT=
      - un token secret : JWT_SECRET=
- 
  - une fois les trois premières étapes reliées, vous pouvez lancer votre API en tapant dans une console: 
     ````
     - npm run dev
