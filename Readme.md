@@ -1,10 +1,13 @@
 #API REST avec mongoose
+
 Voici une petite API REST qui fonctionne avec une base de donnée MongoDB donc du NOSql
 
 #Prérequis
+
 Avoir installer nodejs et avoir créer une base de donnée mongo
 
 #Explications
+
 Elle est déjà avec un objet Users:
  - name
  - email
