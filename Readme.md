@@ -41,7 +41,6 @@ Pour récupérer et faire fonctionner cette API il faut :
  - une fois les trois premières étapes reliées, vous pouvez lancer votre API en tapant dans une console: 
     ````
     - npm run dev
-   
 ## Outils principaux
 
  * NodeJs : Framework js
