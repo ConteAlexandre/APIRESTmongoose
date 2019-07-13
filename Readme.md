@@ -1,12 +1,12 @@
-#API REST avec mongoose
+# API REST avec mongoose
 
 Voici une petite API REST qui fonctionne avec une base de donnée MongoDB donc du NOSql
 
-#Prérequis
+# Prérequis
 
 Avoir installer nodejs et avoir créer une base de donnée mongo
 
-#Explications
+# Explications
 
 Elle est déjà avec un objet Users:
  - name
@@ -26,7 +26,7 @@ Egalement avec un objet Posts:
 Ces deux objets sont en relation Posts dépend de Users.
 
 
-#Comment mettre en route l'API
+# Comment mettre en route l'API
 
 Pour récupérer et faire fonctionner cette API il faut :
  - faire un git clone 
@@ -38,7 +38,7 @@ Pour récupérer et faire fonctionner cette API il faut :
  - une fois les trois premières étapes reliées, vous pouvez lancer votre API en tapant : 
     - npm run dev
 
-#Conclusion
+# Conclusion
     
 Voila pour les explications, si vous avez des problèmes n'hésitez 
 pas à m'envoyer un mail j'y répondrais assez rapidement normalement.
