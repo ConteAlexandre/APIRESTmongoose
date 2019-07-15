@@ -32,9 +32,9 @@ module.exports = {
         Users.find()
             .select('name email')
             .then(users => {
-                return res.status(200).json({
+                return res.status(200).json(
                     users
-                })
+                )
             })
             .catch(err => {
                 return res.status(404).json({
