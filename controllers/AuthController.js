@@ -55,8 +55,8 @@ module.exports= {
                 res.cookie('t', token, {expire: new Date() + 9999 })
 
                 //On retourne l'utilisateur avec le token
-                const {_id, email, name } = user
-                res.json({ token, user: { _id, name, email }})
+                const {_id, email, name, createdAt } = user
+                res.json({ token, user: { _id, name, email, createdAt }})
 
             } else {
                 res.status(401).json({ error: 'Le mot de passe est incorrect'})
