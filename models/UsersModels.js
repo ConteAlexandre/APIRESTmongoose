@@ -25,6 +25,9 @@ const usersSchema = new mongoose.Schema({
         data: Buffer,
         contentType: String
     },
+    about: {
+        type: String
+    },
     createdAt: {
         type: Date,
         default: Date.now
