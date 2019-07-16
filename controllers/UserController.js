@@ -1,5 +1,7 @@
 const _ = require('lodash')
 const Users = require('../models/UsersModels');
+const formidable = require('formidable');
+const fs = require('fs');
 
 module.exports = {
 
@@ -49,20 +51,58 @@ module.exports = {
         return res.json(req.profile)
     },
 
-    //On modifie le profil de l'utilisateurs
+    // //On modifie le profil de l'utilisateurs
+    // updateUser: (req, res, next) => {
+    //     let user = req.profile;
+    //     user = _.extend(user, req.body) //On definit que user est une mutation qui prend en compte le req.profile et req.body
+    //     user.updatedAt = Date.now() //On établit la valeur de updatedAt dans la BDD
+    //     user.save((err) => {
+    //         if (err) {
+    //             return res.status(400).json({
+    //                 error: 'Vous n\'êtes pas autorisé à faire ceci!'
+    //             })
+    //         }
+    //         user.hashed_password = undefined
+    //         res.json({ user })
+    //     })
+    // },
     updateUser: (req, res, next) => {
-        let user = req.profile;
-        user = _.extend(user, req.body) //On definit que user est une mutation qui prend en compte le req.profile et req.body
-        user.updatedAt = Date.now() //On établit la valeur de updatedAt dans la BDD
-        user.save((err) => {
+        let form = new formidable.IncomingForm()
+        form.keepExtensions = true
+        form.parse(req, (err, fields, files) => {
             if (err) {
                 return res.status(400).json({
-                    error: 'Vous n\'êtes pas autorisé à faire ceci!'
+                    error: 'Image ne peut être upload'
                 })
             }
-            user.hashed_password = undefined
-            res.json({ user })
+            //On sauvegarde l'utilisateurs
+            let user = req.profile
+            user = _.extend(user, fields)
+            user.updatedAt = Date.now()
+
+            if (files.photo) {
+                user.photo.data = fs.readFileSync(files.photo.path)
+                user.photo.contentType = files.photo.type
+            }
+
+            user.save((err, result) => {
+                if (err) {
+                    return res.status(400).json({
+                        error: err
+                    })
+                }
+                user.hashed_password = undefined
+                res.json(user)
+            })
         })
+    },
+
+    userPhoto: (req, res, next) => {
+        if (req.profile.photo.data) {
+            res.set("Content-Type", req.profile.photo.contentType)
+            return res.send(req.profile.photo.data)
+        }
+        next()
     },
 
     //Suppression définitive de l'user

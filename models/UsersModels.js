@@ -21,6 +21,10 @@ const usersSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Avec un mot de passe c\'est mieux quand même!']
     },
+    photo: {
+        data: Buffer,
+        contentType: String
+    },
     createdAt: {
         type: Date,
         default: Date.now
