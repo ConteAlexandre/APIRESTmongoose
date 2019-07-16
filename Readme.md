@@ -11,6 +11,8 @@ Avoir installer nodejs et avoir créer une base de donnée mongo
 Elle est déjà avec un objet Users:
  - name
  - email
+ - photo
+ - about
  - hashed_password
  - createdAt
  - updatedAt
