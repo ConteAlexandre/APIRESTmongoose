@@ -51,21 +51,7 @@ module.exports = {
         return res.json(req.profile)
     },
 
-    // //On modifie le profil de l'utilisateurs
-    // updateUser: (req, res, next) => {
-    //     let user = req.profile;
-    //     user = _.extend(user, req.body) //On definit que user est une mutation qui prend en compte le req.profile et req.body
-    //     user.updatedAt = Date.now() //On établit la valeur de updatedAt dans la BDD
-    //     user.save((err) => {
-    //         if (err) {
-    //             return res.status(400).json({
-    //                 error: 'Vous n\'êtes pas autorisé à faire ceci!'
-    //             })
-    //         }
-    //         user.hashed_password = undefined
-    //         res.json({ user })
-    //     })
-    // },
+    //Méthode pour mettre à jour l'user avec la photo
     updateUser: (req, res, next) => {
         let form = new formidable.IncomingForm()
         form.keepExtensions = true
@@ -77,8 +63,8 @@ module.exports = {
             }
             //On sauvegarde l'utilisateurs
             let user = req.profile
-            user = _.extend(user, fields)
-            user.updatedAt = Date.now()
+            user = _.extend(user, fields)//On definit que user est une mutation qui prend en compte le req.profile et ce qu'il y aura dans les champs de formulaire
+            user.updatedAt = Date.now()//On établit la valeur de updatedAt dans la BDD
 
             if (files.photo) {
                 user.photo.data = fs.readFileSync(files.photo.path)
