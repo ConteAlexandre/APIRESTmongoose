@@ -7,7 +7,10 @@ module.exports = {
 
     //Cette méthode nous permet d'aller l'id soumis en paramètre dans la bdd et de savoir si il existe
     UserById: (req, res, next, id) => {
-        Users.findById(id).exec((err, user) => {
+        Users.findById(id)
+            .populate('following', '_id name')
+            .populate('followers', '_id name')
+            .exec((err, user) => {
             if (err || !user) {
                 return res.status(400).json({
                     error: 'Utilisateurs non trouvé'
@@ -103,5 +106,59 @@ module.exports = {
             user.hashed_password = undefined
             res.json({ message: 'Utilisateur supprimé' })
         })
-    }
+    },
+
+    //Follow et Unfollow
+    addFollowing: (req, res, next ) => {
+        Users.findByIdAndUpdate(req.body.userId, {$push: { following: req.body.followId}}, (err, result) => {
+            if (err) {
+                return res.status(400).json({ error: err })
+            }
+            next()
+        })
+    },
+
+    addFollowers: (req, res ) => {
+        Users.findByIdAndUpdate(req.body.followId,
+            {$push: { followers: req.body.userId} },
+            {new: true}
+        )
+            .populate('following', '_id name')
+            .populate('followers', '_id name')
+            .exec((err, result) => {
+                if (err) {
+                    return res.status(400).json({ error: err })
+                }
+                result.hashed_password = undefined
+                res.json(result)
+            })
+    },
+
+    //remove Follow et Unfollow
+    removeFollowing: (req, res, next ) => {
+        Users.findByIdAndUpdate(req.body.userId,
+            {$pull: { following: req.body.unfollowId}},
+            (err, result) => {
+            if (err) {
+                return res.status(400).json({ error: err })
+            }
+            next()
+        })
+    },
+
+    removeFollowers: (req, res ) => {
+        Users.findByIdAndUpdate(req.body.unfollowId,
+            {$pull: { followers: req.body.userId} },
+            {new: true}
+        )
+            .populate('following', '_id name')
+            .populate('followers', '_id name')
+            .exec((err, result) => {
+                if (err) {
+                    return res.status(400).json({ error: err })
+                }
+                result.hashed_password = undefined
+                res.json(result)
+            })
+    },
 }

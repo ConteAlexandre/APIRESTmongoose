@@ -21,6 +21,8 @@ router.post('/signin/', Auth.signin); //route pour se connecter
 
 //Les routes en PUT
 router.put('/user/edit/:userId/', requireSignin, User.hasauthorization, User.updateUser); //Modif le profil de l'utilisateur
+router.put('/user/follow', requireSignin, User.addFollowing, User.addFollowers)
+router.put('/user/unfollow', requireSignin, User.removeFollowing, User.removeFollowers)
 
 //Les routes en DELETE
 router.delete('/user/delete/:userId', requireSignin, User.deleteUser); //Supprimer définitivement un utilisateur
