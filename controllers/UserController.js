@@ -167,7 +167,7 @@ module.exports = {
     findPeople: (req, res) => {
         let following = req.profile.following
         following.push(req.profile._id)
-        Users.find({ id: {$nin: following }}, (err, users) => {
+        Users.find({ _id: {$nin: following }}, (err, users) => {
             if (err) {
                 return res.status(400).json({ error: err })
             }
