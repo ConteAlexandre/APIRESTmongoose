@@ -13,7 +13,8 @@ const router = express.Router();
 router.get('/users/', User.getAllUsers); //Route pour récupérer tout les utilisateurs
 router.get('/profile/:userId/', requireSignin, User.getOneUser); //Route donnant le profil d'un seul utilisateur
 router.get('/signout/', Auth.signout); //Route pour se déconnecter en vidant les cookies
-router.get('/user/photo/:userId', User.userPhoto)
+router.get('/user/photo/:userId', User.userPhoto);
+router.get('/user/findpeople/:userId', requireSignin, User.findPeople)
 
 //Les routes en POST
 router.post('/signup/', Auth.signup); //Route pour s'inscrire

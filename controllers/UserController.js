@@ -110,7 +110,9 @@ module.exports = {
 
     //Follow et Unfollow
     addFollowing: (req, res, next ) => {
-        Users.findByIdAndUpdate(req.body.userId, {$push: { following: req.body.followId}}, (err, result) => {
+        Users.findByIdAndUpdate(req.body.userId,
+            {$push: { following: req.body.followId}},
+            (err, result) => {
             if (err) {
                 return res.status(400).json({ error: err })
             }
@@ -123,8 +125,8 @@ module.exports = {
             {$push: { followers: req.body.userId} },
             {new: true}
         )
-            .populate('following', '_id name')
-            .populate('followers', '_id name')
+            .populate('following', '_id name about')
+            .populate('followers', '_id name about')
             .exec((err, result) => {
                 if (err) {
                     return res.status(400).json({ error: err })
@@ -151,8 +153,8 @@ module.exports = {
             {$pull: { followers: req.body.userId} },
             {new: true}
         )
-            .populate('following', '_id name')
-            .populate('followers', '_id name')
+            .populate('following', '_id name about')
+            .populate('followers', '_id name about')
             .exec((err, result) => {
                 if (err) {
                     return res.status(400).json({ error: err })
@@ -161,4 +163,16 @@ module.exports = {
                 res.json(result)
             })
     },
+
+    findPeople: (req, res) => {
+        let following = req.profile.following
+        following.push(req.profile._id)
+        Users.find({ id: {$nin: following }}, (err, users) => {
+            if (err) {
+                return res.status(400).json({ error: err })
+            }
+            res.json(users)
+        })
+            .select("name")
+    }
 }
