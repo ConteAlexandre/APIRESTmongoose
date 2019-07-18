@@ -14,6 +14,7 @@ const router = express.Router();
 
 //Les routes en get
 router.get('/posts/', Post.getPost);//On récupère tout les posts
+router.get('/post/:postId', Post.getUniquePost);//On récup un seul post
 router.get('/posts/by/:userId', requireSignin, Post.getPostByUser); //Récupéré les post selon l'id de l'utilisateurs
 router.get('/post/photo/:postId', Post.postPhoto);//Récupe de la photo du post
 

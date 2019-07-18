@@ -113,17 +113,33 @@ module.exports = {
     },
 
     //Cette méthode permet de modifier le post selon l'id soumis dans l'url
-    updatePost: (req, res) => {
-        let post = req.post
-        post = _.extend(post, req.body)
-        post.updatedAt = Date.now()
-        post.save(err => {
+    updatePost: (req, res, next) => {
+        let form = new formidable.IncomingForm()
+        form.keepExtensions = true
+        form.parse(req, (err, fields, files) => {
             if (err) {
                 return res.status(400).json({
-                    error: err
+                    error: 'Image ne peut être upload'
                 })
             }
-            res.json( post )
+            //On sauvegarde le post
+            let post = req.post
+            post = _.extend(post, fields)//On definit que user est une mutation qui prend en compte le req.profile et ce qu'il y aura dans les champs de formulaire
+            post.updatedAt = Date.now()//On établit la valeur de updatedAt dans la BDD
+
+            if (files.photo) {
+                post.photo.data = fs.readFileSync(files.photo.path)
+                post.photo.contentType = files.photo.type
+            }
+
+            post.save((err, result) => {
+                if (err) {
+                    if (err['errors']['title']) return res.status(400).json({error: err['errors']['title']['message']})
+                    if (err['errors']['body']) return res.status(400).json({error: err['errors']['body']['message']})
+                } else {
+                    res.json({result})
+                }
+            })
         })
     },
 
@@ -141,4 +157,9 @@ module.exports = {
             })
         })
     },
+
+    //Méthode pour récup un seul post
+    getUniquePost: (req, res) => {
+        return res.json(req.post)
+    }
 }
