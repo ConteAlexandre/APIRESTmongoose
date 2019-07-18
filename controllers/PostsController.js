@@ -32,7 +32,9 @@ module.exports = {
         //On établit la relation avec l'user qui l'as créer
             .populate('postedBy', '_id name')
             //Ici on sélectionne ce que l'on veut voir du post
-            .select('title body')
+            .select('title body createdAt')
+            //On fait une demande de classement
+            .sort({ createdAt: -1 })
             .then(posts => {
                 res.status(200).json( posts )
             })
@@ -40,6 +42,12 @@ module.exports = {
                 res.status(404).json({ error: err })
             })
 
+    },
+
+    //Cette méthode nous permet de récup la photo propre au post
+    postPhoto: (req, res, next) => {
+        res.set("Content-Type", req.post.photo.contenType)
+        return res.send(req.post.photo.data)
     },
 
     //Cette méthode permet de récupérer les post selon l'i dde l'utilisateurs soumis dans l'url
