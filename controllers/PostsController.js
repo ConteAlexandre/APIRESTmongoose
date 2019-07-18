@@ -12,7 +12,7 @@ module.exports = {
         //On cherche par l'id du post
         Post.findById(id)
 
-            //Ici on fait la relation avec notre User qui a créer le post et on demande à voir uniquement id et name
+        //Ici on fait la relation avec notre User qui a créer le post et on demande à voir uniquement id et name
             .populate('postedBy', '_id name')
             .exec((err, post) => {
                 if (err || !post) {
@@ -29,12 +29,12 @@ module.exports = {
     getPost: (req, res) => {
         const posts = Post.find()
 
-            //On établit la relation avec l'user qui l'as créer
+        //On établit la relation avec l'user qui l'as créer
             .populate('postedBy', '_id name')
             //Ici on sélectionne ce que l'on veut voir du post
             .select('title body')
             .then(posts => {
-                res.status(200).json({ posts: posts })
+                res.status(200).json( posts )
             })
             .catch(err => {
                 res.status(404).json({ error: err })
@@ -79,15 +79,16 @@ module.exports = {
             //Si il y a un fichier existant pour la variable photo alors:
             if (files.photo) {
                 post.photo.data = fs.readFileSync(files.photo.path)
-                    post.photo.contenType = files.photo.type
+                post.photo.contenType = files.photo.type
             }
             //Ensuite on sauvegarde notre post en vérifiant si y a pas d'erreurs
             post.save((err, result) => {
                 if (err) {
                     if (err['errors']['title']) return res.status(400).json({error: err['errors']['title']['message']})
                     if (err['errors']['body']) return res.status(400).json({error: err['errors']['body']['message']})
+                } else {
+                    res.json({result})
                 }
-                res.json({ result })
             })
         })
     },

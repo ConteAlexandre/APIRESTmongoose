@@ -13,7 +13,7 @@ const User = require('../controllers/UserController');
 const router = express.Router();
 
 //Les routes en get
-router.get('/posts/', requireSignin, Post.getPost);//On récupère tout les posts
+router.get('/posts/', Post.getPost);//On récupère tout les posts
 router.get('/posts/by/:userId', requireSignin, Post.getPostByUser); //Récupéré les post selon l'id de l'utilisateurs
 
 //Les routes en POST
