@@ -23,6 +23,11 @@ router.post('/post/create/:userId', requireSignin, Post.createPost);//Création 
 
 //Les routes en PUT
 router.put('/post/edit/:postId', requireSignin, Post.updatePost); //Modif le Post
+router.put('/post/like', requireSignin, Post.like); //Ajout de like sur le post
+router.put('/post/unlike', requireSignin, Post.unlike); //Ajout de like sur le post
+router.put('/post/comment', requireSignin, Post.comment);
+router.put('/post/uncomment', requireSignin, Post.uncomment);
+
 
 //Les routes en DELETE
 router.delete('/post/delete/:postId', requireSignin, Post.isPoster, Post.deletePost)

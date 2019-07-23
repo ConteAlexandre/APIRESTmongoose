@@ -14,6 +14,8 @@ module.exports = {
 
         //Ici on fait la relation avec notre User qui a créer le post et on demande à voir uniquement id et name
             .populate('postedBy', '_id name')
+            .populate('comments', 'text createdAt')
+            .populate('comments.postedBy', '_id name')
             .exec((err, post) => {
                 if (err || !post) {
                     return res.status(400).json({
@@ -31,8 +33,10 @@ module.exports = {
 
         //On établit la relation avec l'user qui l'as créer
             .populate('postedBy', '_id name')
+            .populate('comments', 'text createdAt')
+            .populate('comments.postedBy', '_id name')
             //Ici on sélectionne ce que l'on veut voir du post
-            .select('title body createdAt')
+            .select('title body createdAt likes')
             //On fait une demande de classement
             .sort({ createdAt: -1 })
             .then(posts => {
@@ -54,6 +58,8 @@ module.exports = {
     getPostByUser: (req, res) => {
         Post.find({ postedBy: req.profile._id })
             .populate('postedBy', '_id name')
+            //Ici on sélectionne ce que l'on veut voir du post
+            .select('title body createdAt likes')
             //On décide de comment ils sont listé
             .sort('createdAt')
             .exec((err, posts) => {
@@ -161,5 +167,80 @@ module.exports = {
     //Méthode pour récup un seul post
     getUniquePost: (req, res) => {
         return res.json(req.post)
-    }
+    },
+
+    like: (req, res) => {
+        Post.findByIdAndUpdate(
+            req.body.postId,
+            { $push: { likes: req.body.userId } },
+            {new: true }
+            ).exec((err, result) => {
+                if (err) {
+                    return res.status(400).json({
+                        error: err
+                    })
+                } else {
+                    return res.json(result);
+                }
+        })
+    },
+
+    unlike: (req, res) => {
+        Post.findByIdAndUpdate(
+            req.body.postId,
+            { $pull: { likes: req.body.userId } },
+            {new: true }
+        ).exec((err, result) => {
+            if (err) {
+                return res.status(400).json({
+                    error: err
+                })
+            } else {
+                return res.json(result);
+            }
+        })
+    },
+
+    comment: (req,res) => {
+        let comment = req.body.comment
+        comment.postedBy = req.body.userId
+
+        Post.findByIdAndUpdate(
+            req.body.postId,
+            { $push: { comments: comment }},
+            {new: true}
+        )
+            .populate('comments.postedBy', '_id name')
+            .populate('postedBy', '_id name')
+            .exec((err, result) => {
+                if (err) {
+                    res.status(400).json({
+                        error: err
+                    })
+                } else {
+                    return res.json(result)
+                }
+            })
+    },
+
+    uncomment: (req,res) => {
+        let comment = req.body.comment
+
+        Post.findByIdAndUpdate(
+            req.body.postId,
+            { $pull: { comments: { _id: comment.postedBy } }},
+            {new: true}
+        )
+            .populate('comments.postedBy', '_id name')
+            .populate('postedBy', '_id name')
+            .exec((err, result) => {
+                if (err) {
+                    res.status(400).json({
+                        error: err
+                    })
+                } else {
+                    return res.json(result)
+                }
+            })
+    },
 }
