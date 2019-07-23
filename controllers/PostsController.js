@@ -227,7 +227,7 @@ module.exports = {
 
         Post.findByIdAndUpdate(
             req.body.postId,
-            { $pull: { comments: { _id: comment.postedBy } }},
+            { $pull: { comments: { _id: comment._id } }},
             {new: true}
         )
             .populate('comments.postedBy', '_id name')
