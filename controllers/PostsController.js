@@ -14,7 +14,6 @@ module.exports = {
 
         //Ici on fait la relation avec notre User qui a créer le post et on demande à voir uniquement id et name
             .populate('postedBy', '_id name')
-            .populate('comments', 'text createdAt')
             .populate('comments.postedBy', '_id name')
             .exec((err, post) => {
                 if (err || !post) {
