@@ -86,6 +86,7 @@ module.exports = {
         })
     },
 
+    //Méthode pour aller cherche la photo qui correspond à l'user
     userPhoto: (req, res, next) => {
             res.set("Content-Type", req.profile.photo.contentType)
             return res.send(req.profile.photo.data)
@@ -105,7 +106,7 @@ module.exports = {
         })
     },
 
-    //Follow et Unfollow
+    //Méthode pour pouvoir follow un user
     addFollowing: (req, res, next ) => {
         Users.findByIdAndUpdate(req.body.userId,
             {$push: { following: req.body.followId}},
@@ -117,6 +118,7 @@ module.exports = {
         })
     },
 
+    //Méthode permettant de voir qui nous follow
     addFollowers: (req, res ) => {
         Users.findByIdAndUpdate(req.body.followId,
             {$push: { followers: req.body.userId} },
@@ -133,7 +135,7 @@ module.exports = {
             })
     },
 
-    //remove Follow et Unfollow
+    //Méthode pour unfollow un user
     removeFollowing: (req, res, next ) => {
         Users.findByIdAndUpdate(req.body.userId,
             {$pull: { following: req.body.unfollowId}},
@@ -145,6 +147,7 @@ module.exports = {
         })
     },
 
+    //Méthode qui nous supprimer les personnes qui nous suivent plus
     removeFollowers: (req, res ) => {
         Users.findByIdAndUpdate(req.body.unfollowId,
             {$pull: { followers: req.body.userId} },
@@ -161,6 +164,7 @@ module.exports = {
             })
     },
 
+    //Méthode permettant de trouver les personnes que l'on ne suit pas encore
     findPeople: (req, res) => {
         let following = req.profile.following
         following.push(req.profile._id)
