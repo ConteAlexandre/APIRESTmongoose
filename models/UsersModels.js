@@ -22,6 +22,10 @@ const usersSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Avec un mot de passe c\'est mieux quand même!']
     },
+    resetPasswordLink: {
+        data: String,
+        default: ""
+    },
     photo: {
         data: Buffer,
         contentType: String
