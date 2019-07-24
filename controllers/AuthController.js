@@ -83,9 +83,9 @@ module.exports= {
 
     //Méthode d'envoie de mail pour le mot de passe oublié et générer le jeton
     forgotPassword: (req, res) => {
-        if (!req.body) return res.status(400).json({ message: "No request body" });
+        if (!req.body) return res.status(400).json({ message: "Veuillez remplir le champs" });
         if (!req.body.email)
-            return res.status(400).json({ message: "No Email in request body" });
+            return res.status(400).json({ message: "Veuillez mettre un email" });
 
         console.log("forgot password finding user with that email");
         const { email } = req.body;
