@@ -25,16 +25,16 @@ router.post('/post/create/:userId', requireSignin, Post.createPost);//Création 
 router.put('/post/edit/:postId', requireSignin, Post.updatePost); //Modif le Post
 router.put('/post/like', requireSignin, Post.like); //Ajout de like sur le post
 router.put('/post/unlike', requireSignin, Post.unlike); //Ajout de like sur le post
-router.put('/post/comment', requireSignin, Post.comment);
-router.put('/post/uncomment', requireSignin, Post.uncomment);
+router.put('/post/comment', requireSignin, Post.comment);//La route nous permmetant dd'ajouter un commentaire
+router.put('/post/uncomment', requireSignin, Post.uncomment);//Route qui nous permet de supprimer un commentaire
 
 
 //Les routes en DELETE
-router.delete('/post/delete/:postId', requireSignin, Post.isPoster, Post.deletePost)
+router.delete('/post/delete/:postId', requireSignin, Post.isPoster, Post.deletePost);//Route pour delete un post
 
 
 //Les paramètres prédifinis sur les routes
-router.param('userId', User.UserById);
-router.param('postId', Post.postById);
+router.param('userId', User.UserById);//Ici on ajoute un parametre pour id de l'user
+router.param('postId', Post.postById);//Parametre pour id du post
 
 module.exports = router
