@@ -168,11 +168,15 @@ module.exports = {
         return res.json(req.post)
     },
 
+    //Méthode pour rajouter un like en bdd
     like: (req, res) => {
+        //On cherche le post par son id puis on l'update
         Post.findByIdAndUpdate(
             req.body.postId,
+            //On précise ce que l'on update et qu'on fait un rajout
             { $push: { likes: req.body.userId } },
             {new: true }
+            //On exécute la requete
             ).exec((err, result) => {
                 if (err) {
                     return res.status(400).json({
@@ -184,11 +188,15 @@ module.exports = {
         })
     },
 
+    //Méthode pour enlever le like de l'user
     unlike: (req, res) => {
+        //On cherche le post par son id puis on l'update
         Post.findByIdAndUpdate(
             req.body.postId,
+            //On précise ce que l'on update et que l'on supprime
             { $pull: { likes: req.body.userId } },
             {new: true }
+            //On exécute la requête
         ).exec((err, result) => {
             if (err) {
                 return res.status(400).json({
@@ -200,6 +208,7 @@ module.exports = {
         })
     },
 
+    //Méthode pour ajout un commentaire par rapport au post
     comment: (req,res) => {
         let comment = req.body.comment
         comment.postedBy = req.body.userId
@@ -222,6 +231,7 @@ module.exports = {
             })
     },
 
+    //Méthode pour supprimer le commentaire
     uncomment: (req,res) => {
         let comment = req.body.comment
 
