@@ -12,8 +12,9 @@ module.exports = {
         //On cherche par l'id du post
         Post.findById(id)
 
-            //Ici on fait la relation avec notre User qui a créer le post et on demande à voir uniquement id et name
+        //Ici on fait la relation avec notre User qui a créer le post et on demande à voir uniquement id et name
             .populate('postedBy', '_id name')
+            .populate('comments.postedBy', '_id name')
             .exec((err, post) => {
                 if (err || !post) {
                     return res.status(400).json({
@@ -29,12 +30,16 @@ module.exports = {
     getPost: (req, res) => {
         const posts = Post.find()
 
-            //On établit la relation avec l'user qui l'as créer
+        //On établit la relation avec l'user qui l'as créer
             .populate('postedBy', '_id name')
+            .populate('comments', 'text createdAt')
+            .populate('comments.postedBy', '_id name')
             //Ici on sélectionne ce que l'on veut voir du post
-            .select('title body')
+            .select('title body createdAt likes')
+            //On fait une demande de classement
+            .sort({ createdAt: -1 })
             .then(posts => {
-                res.status(200).json({ posts: posts })
+                res.status(200).json( posts )
             })
             .catch(err => {
                 res.status(404).json({ error: err })
@@ -42,10 +47,18 @@ module.exports = {
 
     },
 
+    //Cette méthode nous permet de récup la photo propre au post
+    postPhoto: (req, res, next) => {
+        res.set("Content-Type", req.post.photo.contenType)
+        return res.send(req.post.photo.data)
+    },
+
     //Cette méthode permet de récupérer les post selon l'i dde l'utilisateurs soumis dans l'url
     getPostByUser: (req, res) => {
         Post.find({ postedBy: req.profile._id })
             .populate('postedBy', '_id name')
+            //Ici on sélectionne ce que l'on veut voir du post
+            .select('title body createdAt likes')
             //On décide de comment ils sont listé
             .sort('createdAt')
             .exec((err, posts) => {
@@ -79,15 +92,16 @@ module.exports = {
             //Si il y a un fichier existant pour la variable photo alors:
             if (files.photo) {
                 post.photo.data = fs.readFileSync(files.photo.path)
-                    post.photo.contenType = files.photo.type
+                post.photo.contenType = files.photo.type
             }
             //Ensuite on sauvegarde notre post en vérifiant si y a pas d'erreurs
             post.save((err, result) => {
                 if (err) {
                     if (err['errors']['title']) return res.status(400).json({error: err['errors']['title']['message']})
                     if (err['errors']['body']) return res.status(400).json({error: err['errors']['body']['message']})
+                } else {
+                    res.json({result})
                 }
-                res.json({ result })
             })
         })
     },
@@ -104,17 +118,33 @@ module.exports = {
     },
 
     //Cette méthode permet de modifier le post selon l'id soumis dans l'url
-    updatePost: (req, res) => {
-        let post = req.post
-        post = _.extend(post, req.body)
-        post.updatedAt = Date.now()
-        post.save(err => {
+    updatePost: (req, res, next) => {
+        let form = new formidable.IncomingForm()
+        form.keepExtensions = true
+        form.parse(req, (err, fields, files) => {
             if (err) {
                 return res.status(400).json({
-                    error: err
+                    error: 'Image ne peut être upload'
                 })
             }
-            res.json( post )
+            //On sauvegarde le post
+            let post = req.post
+            post = _.extend(post, fields)//On definit que user est une mutation qui prend en compte le req.profile et ce qu'il y aura dans les champs de formulaire
+            post.updatedAt = Date.now()//On établit la valeur de updatedAt dans la BDD
+
+            if (files.photo) {
+                post.photo.data = fs.readFileSync(files.photo.path)
+                post.photo.contentType = files.photo.type
+            }
+
+            post.save((err, result) => {
+                if (err) {
+                    if (err['errors']['title']) return res.status(400).json({error: err['errors']['title']['message']})
+                    if (err['errors']['body']) return res.status(400).json({error: err['errors']['body']['message']})
+                } else {
+                    res.json({result})
+                }
+            })
         })
     },
 
@@ -131,5 +161,95 @@ module.exports = {
                 message: 'Le post a bien été supprimé'
             })
         })
+    },
+
+    //Méthode pour récup un seul post
+    getUniquePost: (req, res) => {
+        return res.json(req.post)
+    },
+
+    //Méthode pour rajouter un like en bdd
+    like: (req, res) => {
+        //On cherche le post par son id puis on l'update
+        Post.findByIdAndUpdate(
+            req.body.postId,
+            //On précise ce que l'on update et qu'on fait un rajout
+            { $push: { likes: req.body.userId } },
+            {new: true }
+            //On exécute la requete
+            ).exec((err, result) => {
+                if (err) {
+                    return res.status(400).json({
+                        error: err
+                    })
+                } else {
+                    return res.json(result);
+                }
+        })
+    },
+
+    //Méthode pour enlever le like de l'user
+    unlike: (req, res) => {
+        //On cherche le post par son id puis on l'update
+        Post.findByIdAndUpdate(
+            req.body.postId,
+            //On précise ce que l'on update et que l'on supprime
+            { $pull: { likes: req.body.userId } },
+            {new: true }
+            //On exécute la requête
+        ).exec((err, result) => {
+            if (err) {
+                return res.status(400).json({
+                    error: err
+                })
+            } else {
+                return res.json(result);
+            }
+        })
+    },
+
+    //Méthode pour ajout un commentaire par rapport au post
+    comment: (req,res) => {
+        let comment = req.body.comment
+        comment.postedBy = req.body.userId
+
+        Post.findByIdAndUpdate(
+            req.body.postId,
+            { $push: { comments: comment }},
+            {new: true}
+        )
+            .populate('comments.postedBy', '_id name')
+            .populate('postedBy', '_id name')
+            .exec((err, result) => {
+                if (err) {
+                    res.status(400).json({
+                        error: err
+                    })
+                } else {
+                    return res.json(result)
+                }
+            })
+    },
+
+    //Méthode pour supprimer le commentaire
+    uncomment: (req,res) => {
+        let comment = req.body.comment
+
+        Post.findByIdAndUpdate(
+            req.body.postId,
+            { $pull: { comments: { _id: comment._id } }},
+            {new: true}
+        )
+            .populate('comments.postedBy', '_id name')
+            .populate('postedBy', '_id name')
+            .exec((err, result) => {
+                if (err) {
+                    res.status(400).json({
+                        error: err
+                    })
+                } else {
+                    return res.json(result)
+                }
+            })
     },
 }

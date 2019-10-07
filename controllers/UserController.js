@@ -7,7 +7,10 @@ module.exports = {
 
     //Cette méthode nous permet d'aller l'id soumis en paramètre dans la bdd et de savoir si il existe
     UserById: (req, res, next, id) => {
-        Users.findById(id).exec((err, user) => {
+        Users.findById(id)
+            .populate('following', '_id name')
+            .populate('followers', '_id name')
+            .exec((err, user) => {
             if (err || !user) {
                 return res.status(400).json({
                     error: 'Utilisateurs non trouvé'
@@ -51,21 +54,7 @@ module.exports = {
         return res.json(req.profile)
     },
 
-    // //On modifie le profil de l'utilisateurs
-    // updateUser: (req, res, next) => {
-    //     let user = req.profile;
-    //     user = _.extend(user, req.body) //On definit que user est une mutation qui prend en compte le req.profile et req.body
-    //     user.updatedAt = Date.now() //On établit la valeur de updatedAt dans la BDD
-    //     user.save((err) => {
-    //         if (err) {
-    //             return res.status(400).json({
-    //                 error: 'Vous n\'êtes pas autorisé à faire ceci!'
-    //             })
-    //         }
-    //         user.hashed_password = undefined
-    //         res.json({ user })
-    //     })
-    // },
+    //Méthode pour mettre à jour l'user avec la photo
     updateUser: (req, res, next) => {
         let form = new formidable.IncomingForm()
         form.keepExtensions = true
@@ -77,8 +66,8 @@ module.exports = {
             }
             //On sauvegarde l'utilisateurs
             let user = req.profile
-            user = _.extend(user, fields)
-            user.updatedAt = Date.now()
+            user = _.extend(user, fields)//On definit que user est une mutation qui prend en compte le req.profile et ce qu'il y aura dans les champs de formulaire
+            user.updatedAt = Date.now()//On établit la valeur de updatedAt dans la BDD
 
             if (files.photo) {
                 user.photo.data = fs.readFileSync(files.photo.path)
@@ -97,12 +86,10 @@ module.exports = {
         })
     },
 
+    //Méthode pour aller cherche la photo qui correspond à l'user
     userPhoto: (req, res, next) => {
-        if (req.profile.photo.data) {
             res.set("Content-Type", req.profile.photo.contentType)
             return res.send(req.profile.photo.data)
-        }
-        next()
     },
 
     //Suppression définitive de l'user
@@ -117,5 +104,76 @@ module.exports = {
             user.hashed_password = undefined
             res.json({ message: 'Utilisateur supprimé' })
         })
+    },
+
+    //Méthode pour pouvoir follow un user
+    addFollowing: (req, res, next ) => {
+        Users.findByIdAndUpdate(req.body.userId,
+            {$push: { following: req.body.followId}},
+            (err, result) => {
+            if (err) {
+                return res.status(400).json({ error: err })
+            }
+            next()
+        })
+    },
+
+    //Méthode permettant de voir qui nous follow
+    addFollowers: (req, res ) => {
+        Users.findByIdAndUpdate(req.body.followId,
+            {$push: { followers: req.body.userId} },
+            {new: true}
+        )
+            .populate('following', '_id name about')
+            .populate('followers', '_id name about')
+            .exec((err, result) => {
+                if (err) {
+                    return res.status(400).json({ error: err })
+                }
+                result.hashed_password = undefined
+                res.json(result)
+            })
+    },
+
+    //Méthode pour unfollow un user
+    removeFollowing: (req, res, next ) => {
+        Users.findByIdAndUpdate(req.body.userId,
+            {$pull: { following: req.body.unfollowId}},
+            (err, result) => {
+            if (err) {
+                return res.status(400).json({ error: err })
+            }
+            next()
+        })
+    },
+
+    //Méthode qui nous supprimer les personnes qui nous suivent plus
+    removeFollowers: (req, res ) => {
+        Users.findByIdAndUpdate(req.body.unfollowId,
+            {$pull: { followers: req.body.userId} },
+            {new: true}
+        )
+            .populate('following', '_id name about')
+            .populate('followers', '_id name about')
+            .exec((err, result) => {
+                if (err) {
+                    return res.status(400).json({ error: err })
+                }
+                result.hashed_password = undefined
+                res.json(result)
+            })
+    },
+
+    //Méthode permettant de trouver les personnes que l'on ne suit pas encore
+    findPeople: (req, res) => {
+        let following = req.profile.following
+        following.push(req.profile._id)
+        Users.find({ _id: {$nin: following }}, (err, users) => {
+            if (err) {
+                return res.status(400).json({ error: err })
+            }
+            res.json(users)
+        })
+            .select("name")
     }
 }

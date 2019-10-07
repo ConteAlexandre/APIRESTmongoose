@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 //Nos constantes qui permet de faire une validation des champs
 const { nameValidate, emailValidate } = require('../Validator/UsersValidate')
+const {ObjectId} = mongoose.Schema
 
 //Nous construisons notre modèle Users
 const usersSchema = new mongoose.Schema({
@@ -21,6 +22,10 @@ const usersSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Avec un mot de passe c\'est mieux quand même!']
     },
+    resetPasswordLink: {
+        data: String,
+        default: ""
+    },
     photo: {
         data: Buffer,
         contentType: String
@@ -28,6 +33,8 @@ const usersSchema = new mongoose.Schema({
     about: {
         type: String
     },
+    following: [{ type: ObjectId }],
+    followers: [{ type: ObjectId }],
     createdAt: {
         type: Date,
         default: Date.now

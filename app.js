@@ -13,6 +13,8 @@ const bodyParser = require('body-parser');
 //Package pour gérer les cookies
 const  cookieParser = require('cookie-parser');
 
+const cors = require('cors')
+
 //Package permettant de fonctionne avec le fichier .env
 const dotenv = require('dotenv');
 dotenv.config();
@@ -33,7 +35,7 @@ const app = express();
 app.use(morgan('dev'))
 app.use(bodyParser.json());
 app.use(cookieParser())
-
+app.use(cors())
 //On fait appel à nos routes
 app.use('/', require('./routes/PostsRoutes'));
 app.use('/', require('./routes/UsersRoutes'));
