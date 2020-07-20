@@ -1,0 +1,22 @@
+name: Docker
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+
+    tags:
+      - v*
+
+  pull_request:
+    
+env:
+  IMAGE_NAME: image
+
+jobs:
+  test:
+    steps:
+      - name: Run tests
+        run: 
+          docker build . --file Dockerfile
