@@ -18,6 +18,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+
       - name: Run tests
-        run: | 
+        run: 
           docker build . --file Dockerfile
