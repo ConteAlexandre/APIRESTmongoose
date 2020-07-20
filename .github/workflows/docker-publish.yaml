@@ -19,5 +19,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run tests
-        run: 
+        run: | 
           docker build . --file Dockerfile
